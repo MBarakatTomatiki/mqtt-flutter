@@ -1,3 +1,10 @@
+/*
+  @created by Sachin Kumar
+  @mail sachinkum123567@gmail.com
+  NodeMCU code for MQTT client broker
+  That sends the data to cloud and further an flutter application can be used to view the data
+*/
+
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
  
