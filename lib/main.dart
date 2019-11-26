@@ -26,9 +26,9 @@ class HomeApp extends StatefulWidget {
 
 
 class _HomeAppState extends State<HomeApp> {
-  final MqttClient client = MqttClient('test.mosquitto.org', '');
 
-  String broker = "soldier.cloudmqtt.com";
+  static final String broker = "soldier.cloudmqtt.com";
+
   int port = 10755;
   String username = 'aypgvnsq';
   String passwd = 'vsbiDXU4OIlB';
@@ -44,7 +44,9 @@ class _HomeAppState extends State<HomeApp> {
 
   //
 
-  Future<int> main() async {
+  final MqttClient client = MqttClient(broker, '');
+
+  Future<void> _connect() async {
   /// A websocket URL must start with ws:// or wss:// or Dart will throw an exception, consult your websocket MQTT broker
   /// for details.
   /// To use websockets add the following lines -:
@@ -55,7 +57,8 @@ class _HomeAppState extends State<HomeApp> {
   /// You can also supply your own websocket protocol list or disable this feature using the websocketProtocols
   /// setter, read the API docs for further details here, the vast majority of brokers will support the client default
   /// list so in most cases you can ignore this.
-
+  client.port = port;
+  
   /// Set logging on if needed, defaults to off
   client.logging(on: false);
 
@@ -84,7 +87,7 @@ class _HomeAppState extends State<HomeApp> {
   /// client identifier, any supplied username/password, the default keepalive interval(60s)
   /// and clean session, an example of a specific one below.
   final MqttConnectMessage connMess = MqttConnectMessage()
-      .withClientIdentifier('Mqtt_MyClientUniqueId')
+      .withClientIdentifier(clientIdentifier)
       .keepAliveFor(20) // Must agree with the keep alive set above or not set
       .withWillTopic('willtopic') // If you set this you must set a will message
       .withWillMessage('My Will message')
@@ -138,6 +141,23 @@ class _HomeAppState extends State<HomeApp> {
     print(
         'EXAMPLE::Change notification:: topic is <${c[0].topic}>, payload is <-- $pt -->');
     print('');
+    const String topic2 = 'humd'; // Not a wildcard topic
+    client.subscribe(topic2, MqttQos.atLeastOnce);
+
+    client.updates.listen((List<MqttReceivedMessage<MqttMessage>> d)
+    {
+      final MqttPublishMessage recMess2 = d[0].payload;
+      final String ph = MqttPublishPayload.bytesToStringAsString(recMess2.payload.message);
+      setState(() {
+        _humd = double.parse(ph);
+      });
+
+    print(
+        'EXAMPLE::Change notification:: topic is <${d[0].topic}>, payload is <-- $ph -->');
+    print('');
+    }
+    );
+    
   });
 
   /// If needed you can listen for published messages that have completed the publishing
@@ -178,88 +198,6 @@ void pong() {
   print('EXAMPLE::Ping response client callback invoked');
 }
 
-
-  void _connect() async {
-    client = mqtt.MqttClient(broker, '');
-    client.port = port;
-    client.logging(on: true);
-    client.keepAlivePeriod = 30;
-    client.onDisconnected = _onDisconnected;
-
-    final mqtt.MqttConnectMessage connMess = mqtt.MqttConnectMessage()
-        .withClientIdentifier(clientIdentifier)
-        .startClean() // Non persistent session for testing
-        .keepAliveFor(30)
-        .withWillQos(mqtt.MqttQos.atMostOnce);
-
-    client.connectionMessage = connMess;
-
-    try {
-      await client.connect(username, passwd);
-    } catch (e) {
-      print(e);
-      _disconnect();
-    }
-
-    if (client.connectionState == mqtt.MqttConnectionState.connected) {
-      setState(() {
-        connectionState = client.connectionState;
-      });
-    } else {
-      _disconnect();
-    }
-    subscription = client.updates.listen(_onMessage);
-
-    _subscribeToTopic("temp");
-
-    subscription2 = client.updates.listen(_onMessageHumd);
-
-    _subscribeToTopic2("humd");
-  }
-
-  void _disconnect() {
-    client.disconnect();
-  }
-
-  void _subscribeToTopic(String topic) {
-    if (connectionState == mqtt.MqttConnectionState.connected) {
-      client.subscribe(topic, mqtt.MqttQos.exactlyOnce);
-    }
-  }
-  void _subscribeToTopic2(String topic) {
-    if (connectionState == mqtt.MqttConnectionState.connected) {
-      client.subscribe(topic, mqtt.MqttQos.exactlyOnce);
-    }
-  }
-
-  void _onDisconnected() {
-    print('EXAMPLE::OnDisconnected client callback - Client disconnection');
-    if (client.connectionStatus.returnCode ==
-        mqtt.MqttConnectReturnCode.solicited) {
-      print('EXAMPLE::OnDisconnected callback is solicited, this is correct');
-    }
-    exit(-1);
-  }
-
-  void _onMessage(List<mqtt.MqttReceivedMessage> event) {
-    final mqtt.MqttPublishMessage recMess =
-        event[0].payload as mqtt.MqttPublishMessage;
-    final String message =
-        mqtt.MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-    setState(() {
-      _temp = double.parse(message);
-    });
-  }
-
-  void _onMessageHumd(List<mqtt.MqttReceivedMessage> event) {
-    final mqtt.MqttPublishMessage recMess =
-        event[0].payload as mqtt.MqttPublishMessage;
-    final String message =
-        mqtt.MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-    setState(() {
-      _humd = double.parse(message);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
