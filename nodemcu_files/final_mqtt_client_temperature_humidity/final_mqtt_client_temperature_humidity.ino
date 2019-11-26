@@ -11,7 +11,7 @@
 #include <PubSubClient.h>
  
 // Data wire is conntec to the Arduino digital pin 4
-#define ONE_WIRE_BUS 4
+#define ONE_WIRE_BUS D4
 
 // Setup a oneWire instance to communicate with any OneWire devices
 OneWire oneWire(ONE_WIRE_BUS);
@@ -22,7 +22,7 @@ DallasTemperature sensors(&oneWire);
 // Soil moisture inputs
 int sensorPin = A0; 
 int sensorValue;  
-int limit = 300;
+int limit = 500;
 
 const char* ssid = "Redmi 6";
 const char* password =  "123456789";
@@ -37,7 +37,7 @@ PubSubClient client(espClient);
 void setup() {
  
   Serial.begin(115200);
-  pinMode(13, OUTPUT);
+  pinMode(D8, OUTPUT);
  
   WiFi.begin(ssid, password);
  
@@ -107,15 +107,21 @@ Serial.println(sensorValue);
 // We display the sensorValue on the serial monitor.
 
 if (sensorValue<limit) {
-digitalWrite(13, HIGH); 
+digitalWrite(D8, HIGH); 
 }
 else {
-digitalWrite(13, LOW);
+digitalWrite(D8, LOW);
  }
 delay(1000); 
   int temp = sensors.getTempCByIndex(0);
   int humid = sensorValue;
-  client.publish("temp", temp);
-  client.publish("humid", humid);
+  String temp2 = String(temp);
+  String humid2 = String(humid);
+  char cstr[16];
+  itoa(temp, cstr, 10);
+  char hstr[16];
+  itoa(humid, hstr, 10);
+  client.publish("temp", cstr);
+  client.publish("humd", hstr);
   delay(500);
 }

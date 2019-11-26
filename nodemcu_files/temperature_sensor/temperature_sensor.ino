@@ -3,7 +3,7 @@
 #include <DallasTemperature.h>
 
 // Data wire is conntec to the Arduino digital pin 4
-#define ONE_WIRE_BUS 4
+#define ONE_WIRE_BUS D4
 
 // Setup a oneWire instance to communicate with any OneWire devices
 OneWire oneWire(ONE_WIRE_BUS);
@@ -14,7 +14,7 @@ DallasTemperature sensors(&oneWire);
 void setup(void)
 {
   // Start serial communication for debugging purposes
-  Serial.begin(9600);
+  Serial.begin(115200);
   // Start up the library
   sensors.begin();
 }
