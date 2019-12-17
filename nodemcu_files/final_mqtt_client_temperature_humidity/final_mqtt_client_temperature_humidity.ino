@@ -106,7 +106,7 @@ Serial.println(sensorValue);
 
 // We display the sensorValue on the serial monitor.
 
-if (sensorValue<limit) {
+if (sensorValue>limit) {
 digitalWrite(D8, HIGH); 
 }
 else {
@@ -115,6 +115,13 @@ digitalWrite(D8, LOW);
 delay(1000); 
   int temp = sensors.getTempCByIndex(0);
   int humid = sensorValue;
+  int humid_extra;
+  if (humid > 999){
+    humid_extra = 999;
+    }
+  else {
+    humid_extra = humid;
+    }
   String temp2 = String(temp);
   String humid2 = String(humid);
   char cstr[16];
