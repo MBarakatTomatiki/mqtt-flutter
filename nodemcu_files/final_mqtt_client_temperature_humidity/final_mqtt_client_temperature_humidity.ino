@@ -24,8 +24,8 @@ int sensorPin = A0;
 int sensorValue;  
 int limit = 500;
 
-const char* ssid = "Redmi 6";
-const char* password =  "123456789";
+const char* ssid = "RoboMinions";
+const char* password =  "mqttiotapp";
 const char* mqttServer = "soldier.cloudmqtt.com";
 const int mqttPort = 10755;
 const char* mqttUser = "aypgvnsq";

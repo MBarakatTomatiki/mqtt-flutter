@@ -26,6 +26,12 @@ class HomeApp extends StatefulWidget {
 }
 
 class _HomeAppState extends State<HomeApp> {
+  
+  void initState(){
+    super.initState();
+    _connect();
+  }
+
   static String broker = "soldier.cloudmqtt.com";
   int port = 10755;
   String username = 'aypgvnsq';
@@ -44,7 +50,10 @@ class _HomeAppState extends State<HomeApp> {
 
   //
 
+  
   MqttClient client = MqttClient(broker, '');
+
+  
 
   Future<void> _connect() async {
     /// A websocket URL must start with ws:// or wss:// or Dart will throw an exception, consult your websocket MQTT broker
@@ -159,7 +168,7 @@ class _HomeAppState extends State<HomeApp> {
         setState(() {
           if (d[0].topic == topic2) {
             _humd = double.parse(ph);
-            if (_humd>999){
+            if (_humd > 999) {
               _humd = 999;
             }
           }
@@ -219,7 +228,7 @@ class _HomeAppState extends State<HomeApp> {
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(30.0),
+            padding: EdgeInsets.all(10.0),
           ),
           Padding(
             padding: EdgeInsets.all(6.0),
@@ -227,13 +236,13 @@ class _HomeAppState extends State<HomeApp> {
               child: Center(
                 child: Text(
                   'Temperature',
-                  style: TextStyle(color: Colors.blue, fontSize: 30.0),
+                  style: TextStyle(color: Colors.blue, fontSize: 25.0),
                 ),
               ),
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(15.0),
           ),
           CircularPercentIndicator(
             radius: 150.0,
@@ -250,19 +259,19 @@ class _HomeAppState extends State<HomeApp> {
             progressColor: Colors.blue,
           ),
           Padding(
-            padding: EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(15.0),
           ),
           Padding(
             padding: EdgeInsets.all(6.0),
             child: Container(
               child: Center(
                 child: Text('Humidity',
-                    style: TextStyle(color: Colors.blue, fontSize: 20.0)),
+                    style: TextStyle(color: Colors.blue, fontSize: 25.0)),
               ),
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(15.0),
           ),
           CircularPercentIndicator(
             radius: 150.0,
@@ -279,11 +288,6 @@ class _HomeAppState extends State<HomeApp> {
             progressColor: Colors.blue,
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _connect,
-        tooltip: 'Play',
-        child: Icon(Icons.play_arrow),
       ),
     );
   }
